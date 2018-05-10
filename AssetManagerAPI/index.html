@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <title>Asset Manager 2.0</title>
+</head>
+<body ng-controller="main">
+    <div style="padding:20px">
+        <!-- Button trigger modal -->
+        <div style="padding-bottom:20px">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" ng-disabled="!loadComplete">
+                Check Out
+            </button>
+        </div>
+        <div class="progress" ng-hide="loadComplete" style="height:50px">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"  role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...</div>
+        </div>
+        <div ng-show="loadComplete">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Asset Tag</th>
+                        <th scope="col">Checked Out By</th>
+                        <th scope="col">Checked Out Date</th>
+                        <th scope="col">Checked In Date</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="x in history">
+                    <tr>
+                        <td>{{x.AssetTag}}</td>
+                        <td>{{x.CheckedOutBy}}</td>
+                        <td>{{x.CheckedOutDate}}</td>
+                        <td>{{x.CheckedInDate}}</td>
+                        <td>
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#checkInModal" ng-hide="x.CheckedInDate != null">
+                                Check In
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" ng-model="details">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Check Out Asset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkOutForm">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Asset Identifier</label>
+                            <input type="text" class="form-control" id="assetIdentifier" aria-describedby="assetIdentifier" placeholder="Enter Asset Identifier">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Checked Out By</label>
+                            <input type="text" class="form-control" id="checkedOutBy" placeholder="e.g. FS123456">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="checkOutAsset">Check Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="checkInModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" ng-model="details">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Check In Asset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to check this asset back in?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" ng-click="checkInAsset" data-dismiss="modal">Check In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <script src="Scripts/bootstrap.js"></script>
+    <script src="Scripts/angular.min.js"></script>
+    <script src="app/app.js"></script>
+    <script src="app/main.js"></script>
+</body>
+</html>
