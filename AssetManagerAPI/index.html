@@ -15,7 +15,7 @@
         <div class="progress" ng-hide="loadComplete" style="height:50px">
             <div class="progress-bar progress-bar-striped progress-bar-animated"  role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...</div>
         </div>
-        <div ng-show="loadComplete">
+        <div ng-show="loadComplete" ng-cloak>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -32,7 +32,7 @@
                         <td>{{x.CheckedOutDate}}</td>
                         <td>{{x.CheckedInDate}}</td>
                         <td>
-                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#checkInModal" ng-hide="x.CheckedInDate != null">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#checkInModal" ng-click="setDetails(x)" ng-hide="x.CheckedInDate != null">
                                 Check In
                             </button>
                         </td>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" ng-model="details">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,17 +56,17 @@
                     <form id="checkOutForm">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Asset Identifier</label>
-                            <input type="text" class="form-control" id="assetIdentifier" aria-describedby="assetIdentifier" placeholder="Enter Asset Identifier">
+                            <input type="text" ng-model="itemToAdd.assetTag" class="form-control" id="assetIdentifier" aria-describedby="assetIdentifier" placeholder="Enter Asset Identifier">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Checked Out By</label>
-                            <input type="text" class="form-control" id="checkedOutBy" placeholder="e.g. FS123456">
+                            <input type="text" ng-model="itemToAdd.checkedOutBy" class="form-control" id="checkedOutBy" placeholder="e.g. FS123456">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="checkOutAsset">Check Out</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="clearAddItem()">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addItem(itemToAdd)">Check Out</button>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" ng-click="checkInAsset" data-dismiss="modal">Check In</button>
+                    <button type="button" class="btn btn-primary" ng-click="checkInAsset()" data-dismiss="modal">Check In</button>
                 </div>
             </div>
         </div>

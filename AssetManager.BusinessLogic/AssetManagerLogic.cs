@@ -22,7 +22,16 @@ namespace AssetManager.BusinessLogic
 
         public AssetHistory AddItem(AssetHistory item)
         {
+            item.CheckedOutDate = DateTime.Now;
             return logic.AddItem(item);
+        }
+
+        public void CheckInItem(int id)
+        {
+            var existingObject = logic.GetByid(id);
+            existingObject.CheckedInDate = DateTime.Now;
+
+            logic.UpdateItem(existingObject);
         }
 
         public void RemoveItem(int id)
