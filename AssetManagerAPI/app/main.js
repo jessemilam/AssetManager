@@ -31,6 +31,13 @@ var app = angular.module('app', []);
             });
         }
 
+        $scope.removeItem = function (item) {
+            var id = $scope.details.Id;
+            $http.post("http://localhost:64386/api/removeItem/" + id).then(function (response) {
+                $scope.getHistory();
+            });
+        }
+
         $scope.clearAddItem = function () {
             $scope.itemToAdd = {};
         }

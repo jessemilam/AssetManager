@@ -36,6 +36,17 @@ namespace AssetManagerAPI.Controllers
             return Ok(logic.AddItem(item));
         }
 
+        [Route("api/removeItem/{id}")]
+        public IHttpActionResult RemoveItem(int id)
+        {
+            if (id == default(int))
+                return BadRequest("Invalid request. No item could be found.");
+
+            var logic = new AssetManagerLogic();
+            logic.RemoveItem(id);
+            return Ok();
+        }
+
         [Route("api/checkInItem/{id}")]
         public IHttpActionResult CheckInItem(int id)
         {

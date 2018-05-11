@@ -44,6 +44,7 @@ namespace AssetManager.Data
                 throw new InvalidOperationException("Entry could not be found.");
 
             dataContext.AssetHistories.Remove(dataObject);
+            dataContext.SaveChanges();
         }
 
         public AssetHistory UpdateItem(AssetHistory item)
