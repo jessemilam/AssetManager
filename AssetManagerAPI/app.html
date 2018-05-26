@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html ng-app="app" class="ng-cloak">
+<head>
+    <link rel="stylesheet" href="Content/bootstrap.css" />
+    <link rel="stylesheet" href="Styles/ToggleSwitch.css" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Asset Manager 2.0</title>
+
+</head>
+<body ng-controller="main">
+        <div style="padding:20px;">
+            <!-- Button trigger modal -->
+            <div style="padding-bottom:20px">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addItemModal" ng-click="focusInput()" ng-disabled="!loadComplete">
+                    Check Out
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="searchLabel"><b>Search: </b></label>
+                <div class="row">
+                    <div class="col"><input type="text" style="max-width:300px" class="form-control" id="tableFilter" ng-model="search" ng-disabled="!loadComplete" /></div>
+                    <!-- Normal switch -->
+                    <div class="col">
+                        <div class="form-group">
+                            <span class="switch switch-lg" style="float:right">
+                                <input type="checkbox" class="switch" id="switch-normal" ng-click="filterActive()">
+                                <label for="switch-normal">Show Active Only</label>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-hide="loadComplete">
+                <table class="table table-hover" style="opacity:.3">
+                    <thead class="thead-dark">
+                        <tr class="d-flex">
+                            <th class="col-lg-3">Asset Tag</th>
+                            <th class="col-lg-3">Checked Out By</th>
+                            <th class="col-lg-3">Checked Out Date</th>
+                            <th class="col-lg-3">Checked In Date</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="text-center">
+                    <img src="images/89.gif" />
+                </div>
+            </div>
+            <div class="animate-show-hide" ng-switch="search" ng-show="loadComplete" ng-cloak>
+                <div ng-switch-default>
+                    <table class="table table-hover">
+                        <thead class="thead-dark">
+                            <tr class="d-flex">
+                                <th class="col-lg-3">Asset Id</th>
+                                <th class="col-lg-3">Checked Out By</th>
+                                <th class="col-lg-3">Checked Out Date</th>
+                                <th class="col-lg-3">Checked In Date</th>
+                            </tr>
+                        </thead>
+                        <tbody ng-repeat="x in history | filter:search | filter:activeFilter | orderBy: '-CheckedOutDate'">
+                            <tr data-toggle="modal" data-target="#editModal" ng-click="setDetails(x)" class="d-flex">
+                                <td class="col-lg-3">{{x.AssetTag}}</td>
+                                <td class="col-lg-3">{{x.CheckedOutBy}}</td>
+                                <td class="col-lg-3">{{x.CheckedOutDate | date: "MM-dd-yy @ hh:mm:ss a"}}</td>
+                                <td class="col-lg-3">{{x.CheckedInDate | date: "MM-dd-yy @ hh:mm:ss a"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-switch-when="chase sucks">
+                    <div class="text-center">
+                        <img src="images/chase.jpg" class="rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addItemModal" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Check Out Asset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="clearAddItem()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkOutForm">
+                        <div class="form-group">
+                            <label for="assetTag">Asset Identifier</label>
+                            <input type="text" ng-model="itemToAdd.assetTag" class="form-control" id="assetIdentifier" aria-describedby="assetIdentifier"
+                                   placeholder="Enter Asset Identifier"
+                                   onfocus="this.placeholder = ''"
+                                   onblur="this.placeholder = 'Enter Asset Identifier'">
+                        </div>
+                        <div class="form-group">
+                            <label for="checkedOutByAdd">Checked Out By</label>
+                            <input type="text" ng-model="itemToAdd.checkedOutBy" class="form-control" id="checkedOutByAdd"
+                                   placeholder="e.g. FS123456"
+                                   onfocus="this.placeholder = ''"
+                                   onblur="this.placeholder = 'e.g. FS123456'">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" ng-disabled="!allowSubmission(itemToAdd)" class="btn btn-success" data-dismiss="modal" ng-click="addItem(itemToAdd)">Check Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true" ng-model="details">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 style="padding-right:15px" class="modal-title" id="editModalLabel">Details</h5>
+                    <div><button type="button" style="float:right;" ng-click="editDetails()" ng-hide="editEnabled" class="btn btn-sm btn-outline-primary">Edit</button></div>
+                    <!--<div><button type="button" style="float:right;" ng-click="saveDetails()" ng-show="editEnabled" class="btn btn-sm btn-primary">Save</button></div>
+                    <div><button type="button" style="float:right;" ng-click="editDetails()" ng-show="editEnabled" class="btn btn-sm btn-warning">Cancel</button></div>-->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="assetIdentifier">Asset Identifier</label>
+                            <input type="text" ng-disabled="!editEnabled" ng-model="details.assetTag" class="form-control" id="assetIdentifier" aria-describedby="assetIdentifier" placeholder="Enter Asset Identifier">
+                        </div>
+                        <div class="form-group">
+                            <label for="checkedOutByEdit">Checked Out By</label>
+                            <input type="text" ng-disabled="!editEnabled" ng-model="details.checkedOutBy" class="form-control" id="checkedOutByEdit" placeholder="e.g. FS123456">
+                        </div>
+                        <div class="form-group" ng-show="editEnabled">
+                            <label for="checkedOutByEdit">Check Out Date</label>
+                            <input type="text" ng-model="details.checkedOutDate" class="form-control" id="checkedOutDateEdit">
+                        </div>
+                        <div class="form-group" ng-show="editEnabled">
+                            <label for="checkedOutByEdit">Checked In Date</label>
+                            <input type="text" ng-model="details.checkedInDate" class="form-control" id="checkedInDateEdit">
+                        </div>
+                        <div class="alert alert-danger" ng-show="saveFailed">
+                            {{saveErrorMessage}}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-12" ng-hide="editEnabled">
+                        <button type="button" class="btn btn-danger" ng-click="removeItem()" data-dismiss="modal">Delete</button>
+                        <button type="button" style="float:right" class="btn btn-success" ng-disabled="details.checkedInDate != null" ng-click="checkInAsset()" data-dismiss="modal">Check In</button>
+                    </div>
+                    <div class="col-sm-12" ng-show="editEnabled">
+                        <button type="button" ng-click="cancelEdit()" class="btn btn btn-warning">Cancel</button>
+                        <button type="button" ng-disabled="!allowSubmission(details)" style="float:right;" ng-click="saveDetails()" class="btn btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <script src="Scripts/bootstrap.js"></script>
+    <script src="Scripts/angular.min.js"></script>
+    <script src="Scripts/angular-animate.js"></script>
+    <script src="app/app.js"></script>
+    <script src="app/Controllers/main.js"></script>
+    <script src="app/Services/apiSerivce.js"></script>
+</body>
+</html>

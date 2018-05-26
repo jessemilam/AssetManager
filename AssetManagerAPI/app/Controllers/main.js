@@ -1,94 +1,124 @@
 ﻿(function () {
     'use strict';
 
-var app = angular.module('app', []);
+var app = angular.module('app');
 
-    app.controller('main', ['$scope', '$http', '$timeout', function ($scope, $http, $timeout) {
-        $scope.loadComplete = false;
-        $scope.details = {};
-        $scope.itemToAdd = {};
-        $scope.activeFilter = {};
-        $scope.activeFilterOn = false;
-        $scope.filterClass = 'btn btn-outline-primary';
-        $scope.filterBtn = "Show Active Only";
-        $scope.history = [];
-        $scope.items = ['settings', 'home', 'options', 'other'];
-        $scope.selection = $scope.items[0];
+    app.controller('main', ['$scope', '$http', '$timeout', 'apiService', function ($scope, $http, $timeout, apiService) {
+        var vm = $scope;
 
+        vm.loadComplete = false;
+        vm.details = {};
+        vm.archivedDetails = {};
+        vm.itemToAdd = {};
+        vm.activeFilter = {};
+        vm.activeFilterOn = false;
+        vm.history = [];
 
-        $scope.filterActive = function () {
-            if ($scope.activeFilterOn === false) {
-                $scope.activeFilter = { CheckedInDate: null };
-                //$scope.filterClass = 'btn btn-primary';
-                $scope.activeFilterOn = true;
-                $scope.filterBtn = "Show Active Only (enabled)";
+        vm.filterActive = function () {
+            if (vm.activeFilterOn === false) {
+                vm.activeFilter = { CheckedInDate: null };
+                vm.activeFilterOn = true;
                 return;
             }
 
-            if ($scope.activeFilterOn === true) {
-                $scope.activeFilter = {};
-                //$scope.filterClass = 'btn btn-outline-primary';
-                $scope.activeFilterOn = false;
-                $scope.filterBtn = "Show Active Only";
+            if (vm.activeFilterOn === true) {
+                vm.activeFilter = {};
+                vm.activeFilterOn = false;
             }
         }
 
         $scope.clearAddItem = function () {
-            $scope.itemToAdd = {};
+            vm.itemToAdd = {};
         }
 
-        $scope.focusInput = function () {
-            //var target = document.getElementById('assetIdentifier')
-            //target.focus();
-
+        vm.focusInput = function () {
             $('#addItemModal').on('shown.bs.modal', function () {
                 $("#assetIdentifier").focus();
             })
         }
 
-        $scope.getHistory = function () {
-            $http.get("http://localhost:64386/api/getHistory").then(function (response) {
-                $scope.history = response.data;
-                $scope.loadComplete = true;
+        vm.getHistory = function () {
+            apiService.getHistory().then(function (response) {
+                vm.history = response.data;
             });
         }
 
-        $scope.checkInAsset = function () {
+        vm.addItem = function (item) {
+            apiService.addItem(item).then(function (response) {
+                vm.itemToAdd = {};
+                vm.getHistory();
+            });
+        }
+
+        vm.removeItem = function () {
             var id = $scope.details.Id;
-            $http.post("http://localhost:64386/api/checkInItem/" + id).then(function (response) {
-                $scope.getHistory();
+            apiService.removeItem(id).then(function (response) {
+                vm.getHistory();
             });
         }
 
-        $scope.addItem = function (item) {
-            $http.post("http://localhost:64386/api/addItem/", item).then(function (response) {
-                $scope.itemToAdd = {};
-                $scope.getHistory();
-            });
-        }
-
-        $scope.removeItem = function (item) {
+        vm.checkInAsset = function () {
             var id = $scope.details.Id;
-            $http.post("http://localhost:64386/api/removeItem/" + id).then(function (response) {
-                $scope.getHistory();
+            apiService.checkInItem(id).then(function (response) {
+                vm.getHistory();
             });
         }
 
-        $scope.clearAddItem = function () {
-            $scope.itemToAdd = {};
-        }
-
-        $scope.setDetails = function (item) {
-            $scope.details.assetTag = item.AssetTag;
-            $scope.details.checkedOutBy = item.CheckedOutBy;
-            $scope.details.checkedInDate = item.CheckedInDate;
-            $scope.details.Id = item.ID;
+        vm.setDetails = function (item) {
+            vm.editEnabled = false;
+            vm.details.assetTag = item.AssetTag;
+            vm.details.checkedOutBy = item.CheckedOutBy;
+            vm.details.checkedOutDate = item.CheckedOutDate;
+            vm.details.checkedInDate = item.CheckedInDate;
+            vm.details.Id = item.ID;
         }
 
         var init = function () {
-            $timeout(function () {
-                $scope.getHistory();
-            }, 0);
+
+            apiService.getHistory().then(function (response) {
+                vm.history = response.data;
+                vm.loadComplete = true;
+            });
+        }
+
+        vm.editDetails = function () {
+            vm.archivedDetails = angular.copy(vm.details);
+            vm.editEnabled = true;
+        }
+
+        vm.cancelEdit = function () {
+            vm.details = vm.archivedDetails;
+            vm.editEnabled = false;
+        }
+
+        vm.allowSubmission = function (item) {
+            if (item != null) {
+                if (item.assetTag == null || item.assetTag == "") {
+                    return false;
+                }
+                if (item.checkedOutBy == null || item.checkedOutBy == "") {
+                    return false;
+                }
+
+                else return true;
+            }
+        }
+
+        vm.saveDetails = function () {
+            var item = vm.details;
+            apiService.updateItem(item).then(function (response) {
+                if (response.status === 200) {
+                    vm.saveFailed = false;
+                    vm.setDetails(response.data);
+                    vm.getHistory();
+                    vm.editEnabled = false;
+                }
+
+                if (response.status === 400) {
+                    vm.saveFailed = true;
+                    vm.saveErrorMessage = response.data.Message;
+                }
+            });
         }
 
         init();

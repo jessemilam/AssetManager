@@ -64,5 +64,27 @@ namespace AssetManagerAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Route("api/updateItem")]
+        public IHttpActionResult UpdateItem([FromBody]AssetHistory item)
+        {
+            if (item.ID == default(int))
+                return BadRequest("Invalid item specified.");
+
+            if (!DateTime.TryParse(item.CheckedOutDate.ToString(), out DateTime outParse) || item.CheckedOutDate.Year == 0001)
+            {
+                return BadRequest("Invalid check out date specified.");
+            }
+
+            var logic = new AssetManagerLogic();
+            try
+            {
+                return Ok(logic.UpdateItem(item));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

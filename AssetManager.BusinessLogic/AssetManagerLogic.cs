@@ -34,6 +34,11 @@ namespace AssetManager.BusinessLogic
             logic.UpdateItem(existingObject);
         }
 
+        public AssetHistory UpdateItem(AssetHistory item)
+        {
+            return logic.UpdateItem(item);
+        }
+
         public void RemoveItem(int id)
         {
             logic.RemoveItem(id);
