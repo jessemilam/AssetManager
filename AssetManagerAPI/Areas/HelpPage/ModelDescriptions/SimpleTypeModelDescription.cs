@@ -1,0 +1,6 @@
+namespace AssetManagerAPI.Areas.HelpPage.ModelDescriptions
+{
+    public class SimpleTypeModelDescription : ModelDescription
+    {
+    }
+}
